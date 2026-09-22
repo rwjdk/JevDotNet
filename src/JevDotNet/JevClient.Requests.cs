@@ -25,19 +25,22 @@ public partial class JevClient
             if (questionAttributes.Length > 1)
             {
                 throw new InvalidOperationException(
-                    $"Property '{property.Name}' on {typeof(T).Name} has multiple Jev question attributes.");
+                    $"Property '{property.Name}' on {typeof(T).Name} has multiple Jev question attributes. " +
+                    $"Keep exactly one Choice, Score, or Noul attribute per question property. See {WikiLinks.ReturnObject}.");
             }
 
             if (!property.CanWrite)
             {
                 throw new InvalidOperationException(
-                    $"Question property '{property.Name}' on {typeof(T).Name} is not writable.");
+                    $"Question property '{property.Name}' on {typeof(T).Name} is not writable. " +
+                    $"Add a public setter. See {WikiLinks.ReturnObject}.");
             }
 
             if (!questionIds.Add(property.Name))
             {
                 throw new InvalidOperationException(
-                    $"Multiple properties on {typeof(T).Name} produce the question ID '{property.Name}'.");
+                    $"Multiple properties on {typeof(T).Name} produce the question ID '{property.Name}' " +
+                    $"(IDs are case-insensitive). Rename one property. See {WikiLinks.ReturnObject}.");
             }
 
             definitions.Add(BuildQuestionDefinition(property, questionAttributes[0]));
@@ -46,7 +49,8 @@ public partial class JevClient
         if (definitions.Count == 0)
         {
             throw new InvalidOperationException(
-                $"No Jev question properties were found on {typeof(T).Name}.");
+                $"No Jev question properties were found on {typeof(T).Name}. Add a public property with " +
+                $"JevChoiceQuestion<T>, JevScoreQuestion<T>, or JevNoulQuestion. See {WikiLinks.ReturnObject}.");
         }
 
         return definitions;
@@ -90,7 +94,9 @@ public partial class JevClient
             return new QuestionDefinition(property, QuestionKind.Score, question, enumType, null);
         }
 
-        throw new NotSupportedException($"Attribute '{attributeType.Name}' is not a Jev question attribute.");
+        throw new NotSupportedException(
+            $"Attribute '{attributeType.Name}' is not a supported Jev question attribute. " +
+            $"Use a Choice, Score, or Noul question attribute. See {WikiLinks.ReturnObject}.");
     }
 
     private static void ValidateChoiceProperty(PropertyInfo property, Type enumType)
@@ -103,8 +109,9 @@ public partial class JevClient
         if (!isMatchingValue && !isMatchingDetails)
         {
             throw new InvalidOperationException(
-                $"Choice property '{property.Name}' must be {enumType.Name}, nullable {enumType.Name}, " +
-                $"or {typeof(JevChoice<>).Name} using {enumType.Name}.");
+                $"Choice property '{property.Name}' has type {property.PropertyType.Name}. Use " +
+                $"{enumType.Name}, {enumType.Name}?, or JevChoice<{enumType.Name}> to match its attribute. " +
+                $"See {WikiLinks.Choice}.");
         }
     }
 
@@ -118,7 +125,9 @@ public partial class JevClient
         if (!isNumeric && !isMatchingDetails)
         {
             throw new InvalidOperationException(
-                $"Score property '{property.Name}' must be double, decimal, a nullable equivalent, or {typeof(JevScore<>).Name} using {enumType.Name}.");
+                $"Score property '{property.Name}' has type {property.PropertyType.Name}. Use double, decimal, " +
+                $"a nullable equivalent, or JevScore<{enumType.Name}> to match its attribute. " +
+                $"See {WikiLinks.Score}.");
         }
     }
 
@@ -133,20 +142,23 @@ public partial class JevClient
         if (!isSupported)
         {
             throw new InvalidOperationException(
-                $"Noul property '{property.Name}' has unsupported type {property.PropertyType.Name}.");
+                $"Noul property '{property.Name}' has unsupported type {property.PropertyType.Name}. " +
+                $"Use double, decimal, bool, JevNoul, or a nullable equivalent. See {WikiLinks.Noul}.");
         }
 
         if (attribute.HasCustomThreshold && propertyType != typeof(bool))
         {
             throw new InvalidOperationException(
-                $"A custom Noul threshold can only be used on bool or nullable bool properties; " +
-                $"'{property.Name}' has type {property.PropertyType.Name}.");
+                $"Noul property '{property.Name}' uses a custom threshold but has type " +
+                $"{property.PropertyType.Name}. Use bool or bool?, or remove the attribute threshold and " +
+                $"call JevNoul.IsAtLeast() after evaluation. See {WikiLinks.Noul}.");
         }
 
         if ((attribute.True is null) != (attribute.False is null))
         {
             throw new InvalidOperationException(
-                $"Noul property '{property.Name}' must define both True and False criteria or neither.");
+                $"Noul property '{property.Name}' defines only one outcome criterion. " +
+                $"Set both True and False, or remove both. See {WikiLinks.Noul}.");
         }
     }
 
@@ -155,7 +167,8 @@ public partial class JevClient
         if (string.IsNullOrWhiteSpace(question))
         {
             throw new InvalidOperationException(
-                $"Question property '{property.Name}' must define a non-empty question.");
+                $"Question property '{property.Name}' has an empty question. " +
+                $"Provide one specific question in the attribute. See {WikiLinks.ReturnObject}.");
         }
     }
 
@@ -170,7 +183,8 @@ public partial class JevClient
         QuestionKind.Choice => BuildChoiceQuestion(definition),
         QuestionKind.Score => BuildScoreQuestion(definition),
         QuestionKind.Noul => BuildNoulQuestion(definition),
-        _ => throw new NotSupportedException($"Question kind '{definition.Kind}' is not supported.")
+        _ => throw new NotSupportedException(
+            $"Question kind '{definition.Kind}' is not supported. See {WikiLinks.ReturnObject}.")
     };
 
     private static object BuildChoiceQuestion(QuestionDefinition definition)
@@ -188,8 +202,10 @@ public partial class JevClient
         string[] levelNames = Enum.GetNames(enumType);
         if (levelNames.Length is < 2 or > 10)
         {
+            string levelWord = levelNames.Length == 1 ? "level" : "levels";
             throw new InvalidOperationException(
-                $"Score enum {enumType.Name} must define between 2 and 10 levels.");
+                $"Score enum {enumType.Name} defines {levelNames.Length} {levelWord}; it needs 2 to 10. " +
+                $"Add or remove enum members. See {WikiLinks.Score}.");
         }
 
         string[] criteria = levelNames
@@ -235,4 +251,12 @@ public partial class JevClient
         Score,
         Noul
     }
+
+    private static string GuideFor(QuestionKind kind) => kind switch
+    {
+        QuestionKind.Choice => WikiLinks.Choice,
+        QuestionKind.Score => WikiLinks.Score,
+        QuestionKind.Noul => WikiLinks.Noul,
+        _ => WikiLinks.ReturnObject
+    };
 }

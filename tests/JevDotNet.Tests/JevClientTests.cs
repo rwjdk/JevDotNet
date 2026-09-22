@@ -83,6 +83,67 @@ public sealed class JevClientTests
         Assert.True(response.Result.CustomThreshold);
     }
 
+    [Fact]
+    public async Task EvaluateAsync_ExplainsInvalidChoiceProperty()
+    {
+        JevClient client = CreateClient(new StubHttpMessageHandler(ResponseJson));
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => client.EvaluateAsync<InvalidChoiceResult>("The service is unavailable."));
+
+        Assert.Contains("Choice property 'Category'", exception.Message);
+        Assert.Contains("Jev-Choice", exception.Message);
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_ExplainsInvalidScoreScale()
+    {
+        JevClient client = CreateClient(new StubHttpMessageHandler(ResponseJson));
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => client.EvaluateAsync<InvalidScoreResult>("The service is unavailable."));
+
+        Assert.Contains("defines 1 level", exception.Message);
+        Assert.Contains("Jev-Score", exception.Message);
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_ExplainsInvalidNoulThresholdProperty()
+    {
+        JevClient client = CreateClient(new StubHttpMessageHandler(ResponseJson));
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => client.EvaluateAsync<InvalidNoulResult>("The service is unavailable."));
+
+        Assert.Contains("custom threshold", exception.Message);
+        Assert.Contains("Jev-Noul", exception.Message);
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_ExplainsMissingChoiceResponseField()
+    {
+        string incompleteResponse = ResponseJson.Replace("\"choice\": \"Problem\",", "");
+        JevClient client = CreateClient(new StubHttpMessageHandler(incompleteResponse));
+
+        JsonException exception = await Assert.ThrowsAsync<JsonException>(
+            () => client.EvaluateAsync<TestResult>("The service is unavailable."));
+
+        Assert.Contains("missing required 'choice' field", exception.Message);
+        Assert.Contains("Jev-Choice", exception.Message);
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_ExplainsMissingResultConstructor()
+    {
+        JevClient client = CreateClient(new StubHttpMessageHandler(ResponseJson));
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => client.EvaluateAsync<MissingConstructorResult>("The service is unavailable."));
+
+        Assert.Contains("parameterless constructor", exception.Message);
+        Assert.Contains("Building-the-return-object", exception.Message);
+    }
+
     private static JevClient CreateClient(StubHttpMessageHandler handler) => new(new JevClientOptions
     {
         ApiKey = "test-api-key",
@@ -225,6 +286,37 @@ public sealed class JevClientTests
 
         [JevNoulQuestion("Does the probability meet the custom threshold?", 0.7)]
         public bool? CustomThreshold { get; set; }
+    }
+
+    private sealed class InvalidChoiceResult
+    {
+        [JevChoiceQuestion<Category>("What is the category?")]
+        public string? Category { get; set; }
+    }
+
+    private enum OneLevel
+    {
+        Only
+    }
+
+    private sealed class InvalidScoreResult
+    {
+        [JevScoreQuestion<OneLevel>("How severe is it?")]
+        public double Severity { get; set; }
+    }
+
+    private sealed class InvalidNoulResult
+    {
+        [JevNoulQuestion("Is the service broken?", threshold: 0.7)]
+        public double IsBroken { get; set; }
+    }
+
+    private sealed class MissingConstructorResult(string value)
+    {
+        public string Value { get; } = value;
+
+        [JevNoulQuestion("Is the service broken?")]
+        public bool IsBroken { get; set; }
     }
 
     private sealed class StubHttpMessageHandler(string responseJson) : HttpMessageHandler

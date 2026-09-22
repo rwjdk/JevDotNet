@@ -58,6 +58,9 @@ For package-affecting changes, also pack to `artifacts`, inspect both the `.nupk
 - Keep README examples compilable against the current public namespaces and API.
 - Keep API keys out of examples; use environment variables or .NET user secrets.
 - Keep a top-level `## Unreleased` section in `CHANGELOG.md`.
+- Add an entry under `## Unreleased` in the same change whenever behavior, packaging,
+  or user-facing documentation changes meaningfully. Skip only changes with no
+  user-visible effect, such as formatting or internal-only refactors.
 - Released sections must include the version and date, and releases must be separated by `---`.
 
 ## Package and release workflows

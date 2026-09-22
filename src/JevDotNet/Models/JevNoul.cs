@@ -23,7 +23,8 @@ public sealed record JevNoul(double Probability)
             throw new ArgumentOutOfRangeException(
                 nameof(threshold),
                 threshold,
-                "A Noul threshold must be a finite value between 0 and 1.");
+                $"A Noul threshold must be a finite value between 0 and 1, inclusive. " +
+                $"Choose a value such as 0.5 or 0.7. See {JevDotNet.WikiLinks.Noul}.");
         }
 
         return Probability >= threshold;

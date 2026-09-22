@@ -34,22 +34,30 @@ public partial class JevClient
 
         if (string.IsNullOrWhiteSpace(options.ApiKey))
         {
-            throw new ArgumentException("An API key is required.", nameof(options));
+            throw new ArgumentException(
+                $"A TypeSafe AI API key is required. Set JevClientOptions.ApiKey or pass it to " +
+                $"JevClient(string). See {WikiLinks.Troubleshooting}.", nameof(options));
         }
 
         if (string.IsNullOrWhiteSpace(options.Model))
         {
-            throw new ArgumentException("A model is required.", nameof(options));
+            throw new ArgumentException(
+                $"JevClientOptions.Model cannot be empty. Use the default 'jev-latest' or set a " +
+                $"model name. See {WikiLinks.Troubleshooting}.", nameof(options));
         }
 
-        if (!options.Endpoint.IsAbsoluteUri)
+        if (options.Endpoint is null || !options.Endpoint.IsAbsoluteUri)
         {
-            throw new ArgumentException("The endpoint must be an absolute URI.", nameof(options));
+            throw new ArgumentException(
+                $"JevClientOptions.Endpoint must be an absolute URI, such as " +
+                $"https://api.typesafe.ai/v1/systemone. See {WikiLinks.Troubleshooting}.", nameof(options));
         }
 
         _options = options;
-        _httpClient = options.HttpClientFactory()
-            ?? throw new InvalidOperationException("The HTTP client factory returned null.");
+        _httpClient = options.HttpClientFactory?.Invoke()
+            ?? throw new InvalidOperationException(
+                $"JevClientOptions.HttpClientFactory returned null. Return an HttpClient instance. " +
+                $"See {WikiLinks.Troubleshooting}.");
     }
 
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
@@ -79,10 +87,38 @@ public partial class JevClient
 
         using HttpResponseMessage response = await _httpClient.SendAsync(request, cancellationToken);
         string responseJson = await response.Content.ReadAsStringAsync(cancellationToken);
-        response.EnsureSuccessStatusCode();
+        try
+        {
+            response.EnsureSuccessStatusCode();
+        }
+        catch (HttpRequestException exception)
+        {
+            throw new HttpRequestException(
+                $"Jev API request failed with HTTP {(int)response.StatusCode} ({response.ReasonPhrase}). " +
+                $"Check the API key, model, and endpoint. See {WikiLinks.Troubleshooting}.",
+                exception,
+                response.StatusCode);
+        }
 
-        JevResponse rawResponse = JsonSerializer.Deserialize<JevResponse>(responseJson, JsonOptions)
-            ?? throw new JsonException("The API response could not be deserialized.");
+        JevResponse rawResponse;
+        try
+        {
+            rawResponse = JsonSerializer.Deserialize<JevResponse>(responseJson, JsonOptions)
+                ?? throw new JsonException("The response JSON was null.");
+        }
+        catch (JsonException exception)
+        {
+            throw new JsonException(
+                $"The Jev API response could not be read. Check that the endpoint returns a Jev " +
+                $"response with answers and usage. See {WikiLinks.Troubleshooting}.", exception);
+        }
+
+        if (rawResponse.Answers is null || rawResponse.Usage is null)
+        {
+            throw new JsonException(
+                $"The Jev API response is missing answers or usage. Check the endpoint and response " +
+                $"shape. See {WikiLinks.Troubleshooting}.");
+        }
         T result = ConvertAnswers<T>(definitions, rawResponse);
 
         return new JevResponse<T>(
