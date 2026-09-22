@@ -68,4 +68,5 @@ For package-affecting changes, also pack to `artifacts`, inspect both the `.nupk
 - Use `.agents/skills/upgrade-jevdotnet-package` to prepare dependency or package-version upgrades.
 - Use `.agents/skills/release-jevdotnet` for an explicitly authorized GitHub and NuGet release.
 - Use `.agents/skills/upgrade-jevdotnet-consumers` to upgrade repositories directly under `X:\` that consume JevDotNet.
+- The Build and Test workflow attempts to publish after successful tests on pushes to `main` and on manual dispatch. It uses `dotnet nuget push --skip-duplicate`, so an already published package version is skipped; a new version is published. Branch pushes run tests without publishing.
 - Never publish to NuGet, create a GitHub release, tag, force-push, or modify consumer repositories without explicit authorization for that action.
