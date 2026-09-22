@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <PackageId>JevDotNet</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>rwjdk</Authors>
+    <Description>A typed .NET client for TypeSafe AI Jev.</Description>
+    <PackageTags>jev;typesafe-ai;classification;ai</PackageTags>
+    <PackageProjectUrl>https://github.com/rwjdk/JevDotNet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/rwjdk/JevDotNet.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>
