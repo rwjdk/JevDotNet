@@ -21,7 +21,7 @@ public sealed class JevClientOptions
     public Uri Endpoint { get; init; } = new("https://api.typesafe.ai/v1/systemone");
 
     /// <summary>
-    /// Gets the factory used to create a dedicated HTTP client owned and disposed by <see cref="JevClient"/>.
+    /// Gets the factory used to provide the caller-owned HTTP client used by <see cref="JevClient"/>.
     /// </summary>
-    public Func<HttpClient> HttpClientFactory { get; init; } = static () => new HttpClient();
+    public Func<HttpClient> HttpClientFactory { get; init; } = JevClient.GetSharedHttpClient;
 }

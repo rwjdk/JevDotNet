@@ -59,7 +59,7 @@ public sealed class JevClientTests
     {
         StubHttpMessageHandler handler = new StubHttpMessageHandler(
             ResponseJson.Replace("\"choice\": \"Problem\"", "\"choice\": \"99\""));
-        using JevClient client = CreateClient(handler);
+        JevClient client = CreateClient(handler);
 
         JsonException exception = await Assert.ThrowsAsync<JsonException>(
             () => client.EvaluateAsync<TestResult>("The service is unavailable."));
@@ -71,7 +71,7 @@ public sealed class JevClientTests
     public async Task EvaluateAsync_MapsSimpleAndDetailedPropertyShapes()
     {
         StubHttpMessageHandler handler = new StubHttpMessageHandler(PropertyShapesResponseJson);
-        using JevClient client = CreateClient(handler);
+        JevClient client = CreateClient(handler);
 
         JevResponse<PropertyShapesResult> response = await client.EvaluateAsync<PropertyShapesResult>(
             "The service is unavailable.");

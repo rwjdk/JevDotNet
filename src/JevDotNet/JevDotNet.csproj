@@ -9,7 +9,7 @@
     <IsPackable>true</IsPackable>
     <PackageId>JevDotNet</PackageId>
     <Title>JevDotNet</Title>
-    <Version>0.9.0</Version>
+    <Version>0.9.1</Version>
     <Authors>Rasmus Wulff Jensen</Authors>
     <Company>RWJDK</Company>
     <Copyright>2026</Copyright>

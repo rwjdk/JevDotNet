@@ -1,8 +1,7 @@
 # JevDotNet
 
-JevDotNet is an opinionated, convention-based .NET client for the
-[TypeSafe AI Jev API](https://docs.typesafe.ai/introduction). It turns Jev Choice,
-Score, and Noul answers into a strongly typed result object.
+JevDotNet is an opinionated, convention-based .NET client for the [TypeSafe AI Jev API](https://docs.typesafe.ai/introduction).
+It turns Jev Choice, Score, and Noul answers into a strongly typed result object.
 
 ## Installation
 
@@ -10,16 +9,28 @@ Score, and Noul answers into a strongly typed result object.
 dotnet add package JevDotNet
 ```
 
-JevDotNet targets .NET 8.
+JevDotNet targets .NET 8 or higher.
 
 ## Quick start
 
-Define an enum for the available choices and a class for the result:
+Step 1: Define your return object and decorate its properties with the Jev attributes (Choice, Score, or Noul). The property types can be either simple or detailed types (see below):
 
 ```csharp
 using System.ComponentModel;
 using JevDotNet;
 using JevDotNet.Models;
+
+public sealed class MyJevReturnObject
+{
+    [JevChoiceQuestion<Category>("What is the primary category?")]
+    public Category? Category { get; set; }
+
+    [JevScoreQuestion<Severity>("How severe is the reported impact?")]
+    public double? Severity { get; set; }
+
+    [JevNoulQuestion("Is the product broken?", threshold: 0.7)]
+    public bool? IsBroken { get; set; }
+}
 
 public enum Category
 {
@@ -32,43 +43,48 @@ public enum Category
     Other
 }
 
-public sealed class Classification
+public enum Severity
 {
-    [JevChoiceQuestion<Category>("What is the primary category?")]
-    public JevChoice<Category>? Category { get; set; }
+    Cosmetic,
+    Degraded,
+    Blocking
 }
 ```
 
-Create a client and evaluate some text:
+Step 2: Create a client and evaluate some text:
 
 ```csharp
-var client = new JevClient(Environment.GetEnvironmentVariable("JEV_API_KEY")!);
+JevClient client = new JevClient(Environment.GetEnvironmentVariable("JEV_API_KEY")!);
 
-JevResponse<Classification> response = await client.EvaluateAsync<Classification>(
-    "The customer cannot sign in after resetting their password.");
+string input = "The customer cannot sign in after resetting their password.";
+JevResponse<MyJevReturnObject> response = await client.EvaluateAsync<MyJevReturnObject>(input);
 
-Category? category = response.Result.Category?.Choice;
-double? confidence = response.Result.Category?.Confidence;
+MyJevReturnObject myReturnObject = response.Result;
+
+Category? category = myReturnObject.Category;
+double? severity = myReturnObject.Severity;
+bool? isBroken = myReturnObject.IsBroken;
 ```
 
-Each attributed property defines one question. Its property name is used internally
-as the question ID, while its property type controls whether the result contains a
-simple value or the detailed answer.
+Each attributed property defines one question.
 
 ## Question types
 
 ### Choice
 
-`[JevChoiceQuestion<TEnum>]` returns one enum member. A member's `DescriptionAttribute`
-is sent as its criterion description; otherwise its name is used. Use an enum or
-nullable enum property for only the selected value:
+`[JevChoiceQuestion<TEnum>]` returns one enum member:
 
 ```csharp
 [JevChoiceQuestion<Category>("What is the primary category?")]
 public Category? Category { get; set; }
 ```
 
-Use `JevChoice<TEnum>` when you also need confidence and probabilities.
+or
+
+```csharp
+[JevChoiceQuestion<Category>("What is the primary category?")]
+public JevChoice<Category>? Category { get; set; }
+```
 
 ### Score
 
@@ -82,40 +98,39 @@ score:
 public double? Severity { get; set; }
 ```
 
-Use `JevScore<TEnum>` when you also need confidence, probabilities, and the legend.
+or
+
+```csharp
+[JevScoreQuestion<Severity>("How severe is this?")]
+public JevScore<Severity>? Severity { get; set; }
+```
 
 ### Noul
 
-`[JevNoulQuestion]` returns a probability from 0 to 1. Use `double`, `decimal`,
-their nullable forms, or `JevNoul` to receive the probability. Boolean properties
-default to `true` at 0.5 or above. Configure the inclusive threshold and optional
-criteria on the question itself:
+`[JevNoulQuestion]` returns a probability from 0 to 1. Use `double`, `decimal` or `JevNoul` to receive the probability.
+
+Boolean properties default to `true` at 0.5 or above. Configure the inclusive threshold on the question itself:
 
 ```csharp
-[JevNoulQuestion(
-    "Is the product broken?",
-    0.7,
-    True = "The product is broken",
-    False = "The product works")]
+[JevNoulQuestion("Is the product broken?", threshold: 0.7)]
 public bool? IsBroken { get; set; }
 ```
 
-## Client configuration
+## Custom client configuration
 
 For custom configuration, construct the client with `JevClientOptions`:
 
 ```csharp
+HttpClient httpClient = new HttpClient();
+
 var client = new JevClient(new JevClientOptions
 {
     ApiKey = apiKey,
     Model = "jev-latest",
     Endpoint = new Uri("https://api.typesafe.ai/v1/systemone"),
-    HttpClientFactory = () => new HttpClient()
+    HttpClientFactory = () => httpClient
 });
 ```
 
 The returned `JevResponse<T>` contains the converted `Result` together with the
 `InputTokenCount` and `OutputTokenCount` reported by the API.
-
-Keep API keys outside source control, for example in environment variables or
-.NET user secrets.

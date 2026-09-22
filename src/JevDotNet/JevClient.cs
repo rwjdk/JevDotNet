@@ -9,11 +9,11 @@ namespace JevDotNet;
 /// <summary>
 /// Evaluates text with the TypeSafe AI Jev API and maps answers to strongly typed result objects.
 /// </summary>
-public partial class JevClient : IDisposable
+public partial class JevClient
 {
+    private static readonly HttpClient SharedHttpClient = new();
     private readonly JevClientOptions _options;
     private readonly HttpClient _httpClient;
-    private bool _disposed;
 
     /// <summary>
     /// Initializes a client with the default model and endpoint.
@@ -69,7 +69,6 @@ public partial class JevClient : IDisposable
         string input,
         CancellationToken cancellationToken = default)
     {
-        ObjectDisposedException.ThrowIf(_disposed, this);
         IReadOnlyList<QuestionDefinition> definitions = BuildQuestionDefinitions<T>();
         JevRequest payload = new(_options.Model, input, BuildQuestions(definitions));
         string requestJson = JsonSerializer.Serialize(payload, JsonOptions);
@@ -92,18 +91,5 @@ public partial class JevClient : IDisposable
             rawResponse.Usage.OutputTokenCount);
     }
 
-    /// <summary>
-    /// Releases the HTTP client created by the configured factory.
-    /// </summary>
-    public void Dispose()
-    {
-        if (_disposed)
-        {
-            return;
-        }
-
-        _httpClient.Dispose();
-        _disposed = true;
-        GC.SuppressFinalize(this);
-    }
+    internal static HttpClient GetSharedHttpClient() => SharedHttpClient;
 }

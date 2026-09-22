@@ -3,6 +3,9 @@
     <Project Path="development/Sandbox/Sandbox.csproj" />
     <Project Path="development/Secrets/Secrets.csproj" />
   </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="CHANGELOG.md" />
+  </Folder>
   <Project Path="src/JevDotNet/JevDotNet.csproj" />
   <Project Path="tests/JevDotNet.Tests/JevDotNet.Tests.csproj" />
 </Solution>
