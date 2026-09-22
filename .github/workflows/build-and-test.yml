@@ -1,9 +1,9 @@
-name: CI
+name: Build and Test
 
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: ['**']
   pull_request:
     branches: [main]
 
@@ -23,6 +23,15 @@ jobs:
       - run: dotnet restore
 
       - run: dotnet build --configuration Release --no-restore
+
+      - name: Run deterministic tests
+        run: dotnet test tests/JevDotNet.Tests/JevDotNet.Tests.csproj --configuration Release --no-build --no-restore --filter 'Category!=Live'
+
+      - name: Run live tests
+        if: ${{ github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]') }}
+        env:
+          TypeSafeApiKey: ${{ secrets.TYPESAFE_API_KEY }}
+        run: dotnet test tests/JevDotNet.Tests/JevDotNet.Tests.csproj --configuration Release --no-build --no-restore --filter 'Category=Live'
 
       - run: dotnet pack src/JevDotNet/JevDotNet.csproj --configuration Release --no-build --output artifacts
 

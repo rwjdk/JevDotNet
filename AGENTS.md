@@ -29,10 +29,10 @@
 ## Testing and secrets
 
 - Keep deterministic tests for reflection, serialization, and mapping behavior.
-- Live tests use the shared user-secrets store configured by `development/Secrets/Secrets.csproj` and the `TypeSafeApiKey` key.
+- Live tests use the `TypeSafeApiKey` environment variable or the shared user-secrets store configured by `development/Secrets/Secrets.csproj`.
 - Never place API keys in source, command output, test data, environment files, logs, or commits.
 - Do not run live tests unless the user explicitly requests them or the active repository skill requires them.
-- GitHub Actions must build the test project but must not execute tests; tests are run manually.
+- GitHub Actions runs deterministic tests on every build and live tests on trusted builds using the `TYPESAFE_API_KEY` repository secret. Fork and Dependabot pull requests run deterministic tests only.
 - Do not run the Sandbox unless the user explicitly requests an ad-hoc API call.
 
 ## Verification

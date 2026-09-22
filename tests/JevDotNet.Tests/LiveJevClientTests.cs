@@ -4,6 +4,7 @@ using Secrets;
 
 namespace JevDotNet.Tests;
 
+[Trait("Category", "Live")]
 public sealed class LiveJevClientTests
 {
     [Fact]
@@ -12,7 +13,7 @@ public sealed class LiveJevClientTests
         Secrets.Secrets secrets = SecretsManager.GetSecrets();
         Assert.False(
             string.IsNullOrWhiteSpace(secrets.TypeSafeAIApiKey),
-            "Configure TypeSafeApiKey in the shared .NET user-secrets store before running live tests.");
+            "Configure TypeSafeApiKey as an environment variable or in the shared .NET user-secrets store before running live tests.");
 
         JevClient client = new JevClient(secrets.TypeSafeAIApiKey);
 

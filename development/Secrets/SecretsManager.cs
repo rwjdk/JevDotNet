@@ -6,6 +6,12 @@ public static class SecretsManager
 {
     public static Secrets GetSecrets()
     {
+        string? apiKey = Environment.GetEnvironmentVariable("TypeSafeApiKey");
+        if (!string.IsNullOrWhiteSpace(apiKey))
+        {
+            return new Secrets(apiKey);
+        }
+
         IConfigurationRoot configuration = new ConfigurationBuilder()
             .AddUserSecrets(typeof(SecretsManager).Assembly)
             .Build();
