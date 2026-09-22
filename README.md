@@ -1,4 +1,14 @@
+[![CI](https://img.shields.io/github/actions/workflow/status/rwjdk/jev-dotnet/publish-nuget.yml?branch=main&style=for-the-badge)](https://github.com/rwjdk/jev-dotnet/actions/workflows/publish-nuget.yml)
+[![Bugs](https://img.shields.io/github/issues/rwjdk/jev-dotnet/bug?style=for-the-badge&label=Bugs)](https://github.com/rwjdk/jev-dotnet/issues?q=is%3Aissue%20state%3Aopen%20label%3Abug)
+[![NuGet version](https://img.shields.io/nuget/v/JevDotNet?style=for-the-badge)](https://www.nuget.org/packages/JevDotNet)
+
 # JevDotNet
+
+[![NuGet](https://img.shields.io/badge/NuGet-blue?style=for-the-badge)](https://www.nuget.org/packages/JevDotNet)
+[![Wiki](https://img.shields.io/badge/Wiki-brown?style=for-the-badge)](https://github.com/rwjdk/jev-dotnet/wiki)
+[![Changelog](https://img.shields.io/badge/-Changelog-darkgreen?style=for-the-badge)](https://github.com/rwjdk/jev-dotnet/blob/main/CHANGELOG.md)
+[![YouTube](https://img.shields.io/badge/-YouTube-darkred?style=for-the-badge)](https://youtu.be/T6jRVRXtRd8)
+[![API Reference](https://img.shields.io/badge/API_Reference-gray?style=for-the-badge)](https://docs.typesafe.ai/introduction)
 
 JevDotNet is an opinionated, convention-based .NET client for the [TypeSafe AI Jev API](https://docs.typesafe.ai/introduction).
 It turns Jev Choice, Score, and Noul answers into a strongly typed result object.
