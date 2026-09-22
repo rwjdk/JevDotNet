@@ -1,19 +1,18 @@
-name: Publish NuGet
+name: CI
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: read
 
 jobs:
-  publish:
+  build:
     runs-on: ubuntu-latest
-    environment: release
-    permissions:
-      contents: read
-      id-token: write
-
     steps:
       - uses: actions/checkout@v5
 
@@ -26,6 +25,29 @@ jobs:
       - run: dotnet build --configuration Release --no-restore
 
       - run: dotnet pack src/JevDotNet/JevDotNet.csproj --configuration Release --no-build --output artifacts
+
+      - name: Upload package
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: actions/upload-artifact@v6
+        with:
+          name: nuget-package
+          path: artifacts/*.*nupkg
+
+  publish:
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
+    needs: build
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Download package
+        uses: actions/download-artifact@v5
+        with:
+          name: nuget-package
+          path: artifacts
 
       - name: NuGet login
         uses: NuGet/login@v1
