@@ -5,7 +5,7 @@ description: Upgrade JevDotNet dependencies and prepare a verified package-versi
 
 # Upgrade the JevDotNet package
 
-Prepare a package upgrade in `X:\JevDotNet`. Preserve unrelated work and do not publish, push, or create a release unless separately requested.
+Prepare a package upgrade in `X:\jev-dotnet`. Preserve unrelated work and do not publish, push, or create a release unless separately requested.
 
 ## Inspect
 

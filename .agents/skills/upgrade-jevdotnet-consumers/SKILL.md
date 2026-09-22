@@ -9,7 +9,7 @@ Use this only after the requested JevDotNet version is available from the consum
 
 ## Discover
 
-Inspect immediate child directories of `X:\` that are Git repositories. Exclude `X:\JevDotNet`. Read each candidate's repository instructions before changing it. Include only repositories with an actual `PackageReference` or central `PackageVersion` for `JevDotNet`.
+Inspect immediate child directories of `X:\` that are Git repositories. Exclude `X:\jev-dotnet`. Read each candidate's repository instructions before changing it. Include only repositories with an actual `PackageReference` or central `PackageVersion` for `JevDotNet`.
 
 For every included repository, record its branch, upstream, remotes, working-tree status, version-management pattern, and build entry point. Preserve all unrelated changes.
 
