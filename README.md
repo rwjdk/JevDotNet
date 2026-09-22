@@ -13,7 +13,7 @@
 JevDotNet is an opinionated, convention-based .NET client for the [TypeSafe AI Jev API](https://docs.typesafe.ai/introduction).
 It turns Jev Choice, Score, and Noul answers into a strongly typed result object.
 
-See the [wiki guide to building the return object](https://github.com/rwjdk/jev-dotnet/wiki/Building-the-return-object) for a step-by-step walkthrough.
+Start with the [wiki's implementation walkthrough](https://github.com/rwjdk/jev-dotnet/wiki/Getting-started), then use its guides to build your return object and work with each Jev type.
 
 ## YouTube video how to use
 https://youtu.be/T6jRVRXtRd8
