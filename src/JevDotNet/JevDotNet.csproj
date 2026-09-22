@@ -5,18 +5,30 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);1591</NoWarn>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <IsPackable>true</IsPackable>
     <PackageId>JevDotNet</PackageId>
+    <Title>JevDotNet</Title>
     <Version>0.1.0</Version>
-    <Authors>rwjdk</Authors>
-    <Description>A typed .NET client for TypeSafe AI Jev.</Description>
+    <Authors>Rasmus Wulff Jensen</Authors>
+    <Company>RWJDK</Company>
+    <Copyright>2026</Copyright>
+    <Description>An opinionated and convention-based .NET implementation of the Jev SystemOne AI by TypeSafeAI</Description>
     <PackageTags>jev;typesafe-ai;classification;ai</PackageTags>
     <PackageProjectUrl>https://github.com/rwjdk/JevDotNet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/rwjdk/JevDotNet.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <DebugType>portable</DebugType>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageReleaseNotes>https://github.com/rwjdk/JevDotNet/blob/main/CHANGELOG.md</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

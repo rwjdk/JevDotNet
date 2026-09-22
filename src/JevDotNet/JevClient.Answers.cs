@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Reflection;
 using System.Text.Json;
-using JevDotNet.ClassLib.Models;
+using JevDotNet.Models;
 
-namespace JevDotNet.ClassLib;
+namespace JevDotNet;
 
 public partial class JevClient
 {

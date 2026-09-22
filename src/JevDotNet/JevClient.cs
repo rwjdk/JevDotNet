@@ -2,20 +2,31 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using JevDotNet.ClassLib.Models;
+using JevDotNet.Models;
 
-namespace JevDotNet.ClassLib;
+namespace JevDotNet;
 
+/// <summary>
+/// Evaluates text with the TypeSafe AI Jev API and maps answers to strongly typed result objects.
+/// </summary>
 public partial class JevClient
 {
     private readonly JevClientOptions _options;
     private readonly HttpClient _httpClient;
 
+    /// <summary>
+    /// Initializes a client with the default model and endpoint.
+    /// </summary>
+    /// <param name="apiKey">The TypeSafe AI API key.</param>
     public JevClient(string apiKey)
         : this(new JevClientOptions { ApiKey = apiKey })
     {
     }
 
+    /// <summary>
+    /// Initializes a client with custom options.
+    /// </summary>
+    /// <param name="options">The API and HTTP client configuration.</param>
     public JevClient(JevClientOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
@@ -46,6 +57,13 @@ public partial class JevClient
         Converters = { new JsonStringEnumConverter() }
     };
 
+    /// <summary>
+    /// Evaluates an input and converts the answers into a new result object.
+    /// </summary>
+    /// <typeparam name="T">The result type to create. It must have a parameterless constructor.</typeparam>
+    /// <param name="input">The text to evaluate.</param>
+    /// <param name="questions">The questions Jev should answer about the input.</param>
+    /// <returns>The converted result together with its token usage.</returns>
     public async Task<JevResponse<T>> EvaluateAsync<T>(string input, IList<JevQuestion> questions)
     {
         JevRequest payload = new(_options.Model, input, BuildQuestions(questions));
@@ -63,6 +81,9 @@ public partial class JevClient
             ?? throw new JsonException("The API response could not be deserialized.");
         T result = ConvertAnswers<T>(questions, rawResponse);
 
-        return new JevResponse<T>(result, rawResponse);
+        return new JevResponse<T>(
+            result,
+            rawResponse.Usage.InputTokenCount,
+            rawResponse.Usage.OutputTokenCount);
     }
 }

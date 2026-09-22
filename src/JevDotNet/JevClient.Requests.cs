@@ -1,8 +1,8 @@
 using System.ComponentModel;
 using System.Reflection;
-using JevDotNet.ClassLib.Models;
+using JevDotNet.Models;
 
-namespace JevDotNet.ClassLib;
+namespace JevDotNet;
 
 public partial class JevClient
 {

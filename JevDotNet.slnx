@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/development/">
+    <Project Path="development/Sandbox/Sandbox.csproj" />
+    <Project Path="development/Secrets/Secrets.csproj" />
+  </Folder>
   <Project Path="src/JevDotNet/JevDotNet.csproj" />
   <Project Path="tests/JevDotNet.Tests/JevDotNet.Tests.csproj" />
 </Solution>

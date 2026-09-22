@@ -2,8 +2,7 @@ using System.ComponentModel;
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using JevDotNet.ClassLib;
-using JevDotNet.ClassLib.Models;
+using JevDotNet.Models;
 
 namespace JevDotNet.Tests;
 
@@ -12,8 +11,8 @@ public sealed class JevClientTests
     [Fact]
     public async Task EvaluateAsync_MapsAllSupportedAnswerShapes()
     {
-        var handler = new StubHttpMessageHandler(ResponseJson);
-        var client = new JevClient(new JevClientOptions
+        StubHttpMessageHandler handler = new StubHttpMessageHandler(ResponseJson);
+        JevClient client = new JevClient(new JevClientOptions
         {
             ApiKey = "test-api-key",
             Model = "jev-test",
@@ -45,8 +44,8 @@ public sealed class JevClientTests
         Assert.Equal(0.95, response.Result.IsBrokenDetails?.Probability);
         Assert.True(response.Result.IsBrokenDetails?.Value);
 
-        Assert.Equal("jev-response-model", response.Raw.Model);
-        Assert.Equal(12, response.Usage.InputTokens);
+        Assert.Equal(12, response.InputTokenCount);
+        Assert.Equal(6, response.OutputTokenCount);
 
         Assert.NotNull(handler.Request);
         Assert.Equal(HttpMethod.Post, handler.Request.Method);

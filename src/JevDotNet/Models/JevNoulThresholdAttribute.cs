@@ -1,8 +1,15 @@
-namespace JevDotNet.ClassLib.Models;
+namespace JevDotNet.Models;
 
+/// <summary>
+/// Sets the inclusive probability threshold used to convert a Noul answer to a Boolean property.
+/// </summary>
 [AttributeUsage(AttributeTargets.Property)]
 public sealed class JevNoulThresholdAttribute : Attribute
 {
+    /// <summary>
+    /// Initializes the attribute with an inclusive threshold.
+    /// </summary>
+    /// <param name="threshold">A threshold from 0 to 1, inclusive.</param>
     public JevNoulThresholdAttribute(double threshold)
     {
         if (!double.IsFinite(threshold) || threshold is < 0 or > 1)
@@ -16,5 +23,8 @@ public sealed class JevNoulThresholdAttribute : Attribute
         Threshold = threshold;
     }
 
+    /// <summary>
+    /// Gets the inclusive probability threshold.
+    /// </summary>
     public double Threshold { get; }
 }

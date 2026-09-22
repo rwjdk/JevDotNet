@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace JevDotNet.ClassLib.Models;
+namespace JevDotNet.Models;
 
 internal sealed record JevRequest(
     [property: JsonPropertyName("model")] string Model,

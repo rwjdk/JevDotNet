@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\JevDotNet\JevDotNet.csproj" />
+    <ProjectReference Include="..\..\development\Secrets\Secrets.csproj" />
   </ItemGroup>
 
   <ItemGroup>

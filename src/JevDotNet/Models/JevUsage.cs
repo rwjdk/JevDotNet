@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 
-namespace JevDotNet.ClassLib.Models;
+namespace JevDotNet.Models;
 
-public sealed record JevUsage(
-    [property: JsonPropertyName("input_tokens")] int InputTokens,
-    [property: JsonPropertyName("output_tokens")] int OutputTokens);
+internal sealed record JevUsage(
+    [property: JsonPropertyName("input_tokens")] long InputTokenCount,
+    [property: JsonPropertyName("output_tokens")] long OutputTokenCount);
