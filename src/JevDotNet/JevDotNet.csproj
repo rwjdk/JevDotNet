@@ -15,7 +15,7 @@
     <Copyright>2026</Copyright>
     <Description>An opinionated and convention-based .NET implementation of the Jev SystemOne AI by TypeSafeAI</Description>
     <PackageTags>jev;typesafe-ai;classification;ai</PackageTags>
-    <PackageProjectUrl>https://github.com/rwjdk/jev-dotnet</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/rwjdk/jev-dotnet/wiki</PackageProjectUrl>
     <RepositoryUrl>https://github.com/rwjdk/jev-dotnet.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
