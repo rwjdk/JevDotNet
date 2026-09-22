@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added `AddJevClient` dependency injection registration with API key and custom options overloads.
 - Added Coveralls coverage reporting and a coverage badge to the README.
 - Reorganized the wiki into a step-by-step implementation path, with Choice, Score, and Noul nested under building the return object.
 - Improved validation and response error messages with corrective guidance and links to the relevant wiki pages.

@@ -86,6 +86,24 @@ bool? isBroken = myReturnObject.IsBroken;
 
 Each attributed property defines one question.
 
+## Dependency injection
+
+In an ASP.NET Core application, register `JevClient` as a singleton:
+
+```csharp
+using JevDotNet;
+using Microsoft.AspNetCore.Builder;
+
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+string apiKey = Environment.GetEnvironmentVariable("JEV_API_KEY")
+    ?? throw new InvalidOperationException("Set JEV_API_KEY.");
+
+builder.Services.AddJevClient(apiKey);
+```
+
+You can also pass a `JevClientOptions` instance to `AddJevClient` to configure the model,
+endpoint, or HTTP client. Resolve `JevClient` from dependency injection wherever it is needed.
+
 ## Question types
 
 ### Choice
