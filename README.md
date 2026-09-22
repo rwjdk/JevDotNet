@@ -5,6 +5,8 @@ It turns Jev Choice, Score, and Noul answers into a strongly typed result object
 
 ## Installation
 
+JevDotNet is available on [NuGet](https://www.nuget.org/packages/JevDotNet).
+
 ```shell
 dotnet add package JevDotNet
 ```
