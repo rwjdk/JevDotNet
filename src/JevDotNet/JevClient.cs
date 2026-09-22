@@ -9,10 +9,11 @@ namespace JevDotNet;
 /// <summary>
 /// Evaluates text with the TypeSafe AI Jev API and maps answers to strongly typed result objects.
 /// </summary>
-public partial class JevClient
+public partial class JevClient : IDisposable
 {
     private readonly JevClientOptions _options;
     private readonly HttpClient _httpClient;
+    private bool _disposed;
 
     /// <summary>
     /// Initializes a client with the default model and endpoint.
@@ -62,28 +63,47 @@ public partial class JevClient
     /// </summary>
     /// <typeparam name="T">The result type to create. It must have a parameterless constructor.</typeparam>
     /// <param name="input">The text to evaluate.</param>
-    /// <param name="questions">The questions Jev should answer about the input.</param>
+    /// <param name="cancellationToken">Cancellation Token</param>
     /// <returns>The converted result together with its token usage.</returns>
-    public async Task<JevResponse<T>> EvaluateAsync<T>(string input, IList<JevQuestion> questions)
+    public async Task<JevResponse<T>> EvaluateAsync<T>(
+        string input,
+        CancellationToken cancellationToken = default)
     {
-        JevRequest payload = new(_options.Model, input, BuildQuestions(questions));
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        IReadOnlyList<QuestionDefinition> definitions = BuildQuestionDefinitions<T>();
+        JevRequest payload = new(_options.Model, input, BuildQuestions(definitions));
         string requestJson = JsonSerializer.Serialize(payload, JsonOptions);
 
         using HttpRequestMessage request = new(HttpMethod.Post, _options.Endpoint);
         request.Content = new StringContent(requestJson, Encoding.UTF8, "application/json");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _options.ApiKey);
 
-        using HttpResponseMessage response = await _httpClient.SendAsync(request);
-        string responseJson = await response.Content.ReadAsStringAsync();
+        using HttpResponseMessage response = await _httpClient.SendAsync(request, cancellationToken);
+        string responseJson = await response.Content.ReadAsStringAsync(cancellationToken);
         response.EnsureSuccessStatusCode();
 
         JevResponse rawResponse = JsonSerializer.Deserialize<JevResponse>(responseJson, JsonOptions)
             ?? throw new JsonException("The API response could not be deserialized.");
-        T result = ConvertAnswers<T>(questions, rawResponse);
+        T result = ConvertAnswers<T>(definitions, rawResponse);
 
         return new JevResponse<T>(
             result,
             rawResponse.Usage.InputTokenCount,
             rawResponse.Usage.OutputTokenCount);
+    }
+
+    /// <summary>
+    /// Releases the HTTP client created by the configured factory.
+    /// </summary>
+    public void Dispose()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _httpClient.Dispose();
+        _disposed = true;
+        GC.SuppressFinalize(this);
     }
 }

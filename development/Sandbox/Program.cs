@@ -4,20 +4,23 @@ using JevDotNet.Models;
 using Secrets;
 
 Secrets.Secrets secrets = SecretsManager.GetSecrets();
-if (string.IsNullOrWhiteSpace(secrets.TypeSafeAIApiKey))
-{
-    Console.WriteLine(
-        "Configure the TypeSafeApiKey user secret before running the sandbox.");
-    return;
-}
 
 JevClient client = new JevClient(secrets.TypeSafeAIApiKey);
-JevResponse<Classification> response = await client.EvaluateAsync<Classification>(
-    "The customer cannot sign in after resetting their password.",
-    [new JevChoiceQuestion<Category>("What is the primary category?", "Category")]);
 
-Console.WriteLine($"Category: {response.Result.Category}");
-Console.WriteLine($"Confidence: {response.Result.CategoryDetails?.Confidence:P0}");
+string input = "The customer cannot sign in after resetting their password.";
+JevResponse<MyClassification> response = await client.EvaluateAsync<MyClassification>(input);
+
+Console.WriteLine($"Category: {response.Result.Category?.Choice}");
+Console.WriteLine($"Confidence: {response.Result.Category?.Confidence:P0}");
+
+internal sealed class MyClassification
+{
+    [JevChoiceQuestion<Category>("What is the primary category?")]
+    public JevChoice<Category>? Category { get; set; }
+
+    [JevNoulQuestion("Did customer fail?", threshold: 0.7)]
+    public required bool Fail { get; set; }
+}
 
 internal enum Category
 {
@@ -28,12 +31,4 @@ internal enum Category
     Billing,
 
     Other
-}
-
-internal sealed class Classification
-{
-    public Category? Category { get; set; }
-
-    [JevAnswerFor(nameof(Category))]
-    public JevChoice<Category>? CategoryDetails { get; set; }
 }

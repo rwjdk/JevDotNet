@@ -17,26 +17,13 @@ public sealed class LiveJevClientTests
         JevClient client = new JevClient(secrets.TypeSafeAIApiKey);
 
         JevResponse<LiveResult> response = await client.EvaluateAsync<LiveResult>(
-            "Our production website is unavailable for every customer.",
-            [
-                new JevChoiceQuestion<Category>("What is the primary category?", "Category"),
-                new JevScoreQuestion<Severity>("How severe is the reported impact?", "Severity"),
-                new JevNoulQuestion(
-                    "Is the product broken or unavailable?",
-                    "IsBroken",
-                    new JevNoulCriteria("The product is broken or unavailable", "The product works"))
-            ]);
+            "Our production website is unavailable for every customer.");
 
         Assert.True(response.Result.Category.HasValue);
         Assert.True(Enum.IsDefined(response.Result.Category.Value));
-        Assert.NotNull(response.Result.CategoryDetails);
-        Assert.InRange(response.Result.CategoryDetails.Confidence, 0, 1);
-        Assert.True(response.Result.Severity.HasValue);
-        Assert.InRange(response.Result.Severity.Value, 0, 2);
         Assert.NotNull(response.Result.SeverityDetails);
-        Assert.True(response.Result.IsBrokenProbability.HasValue);
-        Assert.InRange(response.Result.IsBrokenProbability.Value, 0, 1);
         Assert.NotNull(response.Result.IsBrokenDetails);
+        Assert.InRange(response.Result.IsBrokenDetails.Probability, 0, 1);
         Assert.True(response.InputTokenCount > 0);
         Assert.True(response.OutputTokenCount > 0);
     }
@@ -61,20 +48,16 @@ public sealed class LiveJevClientTests
 
     private sealed class LiveResult
     {
+        [JevChoiceQuestion<Category>("What is the primary category?")]
         public Category? Category { get; set; }
 
-        [JevAnswerFor(nameof(Category))]
-        public JevChoice<Category>? CategoryDetails { get; set; }
-
-        public double? Severity { get; set; }
-
-        [JevAnswerFor(nameof(Severity))]
+        [JevScoreQuestion<Severity>("How severe is the reported impact?")]
         public JevScore<Severity>? SeverityDetails { get; set; }
 
-        [JevAnswerFor("IsBroken")]
-        public double? IsBrokenProbability { get; set; }
-
-        [JevAnswerFor("IsBroken")]
+        [JevNoulQuestion(
+            "Is the product broken or unavailable?",
+            True = "The product is broken or unavailable",
+            False = "The product works")]
         public JevNoul? IsBrokenDetails { get; set; }
     }
 }

@@ -34,10 +34,8 @@ public enum Category
 
 public sealed class Classification
 {
-    public Category? Category { get; set; }
-
-    [JevAnswerFor(nameof(Category))]
-    public JevChoice<Category>? CategoryDetails { get; set; }
+    [JevChoiceQuestion<Category>("What is the primary category?")]
+    public JevChoice<Category>? Category { get; set; }
 }
 ```
 
@@ -47,37 +45,60 @@ Create a client and evaluate some text:
 var client = new JevClient(Environment.GetEnvironmentVariable("JEV_API_KEY")!);
 
 JevResponse<Classification> response = await client.EvaluateAsync<Classification>(
-    "The customer cannot sign in after resetting their password.",
-    [new JevChoiceQuestion<Category>("What is the primary category?", "Category")]);
+    "The customer cannot sign in after resetting their password.");
 
-Category? category = response.Result.Category;
-double? confidence = response.Result.CategoryDetails?.Confidence;
+Category? category = response.Result.Category?.Choice;
+double? confidence = response.Result.Category?.Confidence;
 ```
 
-The question ID (`Category` above) maps to a result property with the same name,
-ignoring case. Use `[JevAnswerFor("questionId")]` when a property has a different
-name or when you also want the detailed response.
+Each attributed property defines one question. Its property name is used internally
+as the question ID, while its property type controls whether the result contains a
+simple value or the detailed answer.
 
 ## Question types
 
 ### Choice
 
-`JevChoiceQuestion<TEnum>` returns one enum member. A member's
-`DescriptionAttribute` is sent as its criterion description; otherwise its name is
-used. A result can expose the enum value, `JevChoice<TEnum>`, or both.
+`[JevChoiceQuestion<TEnum>]` returns one enum member. A member's `DescriptionAttribute`
+is sent as its criterion description; otherwise its name is used. Use an enum or
+nullable enum property for only the selected value:
+
+```csharp
+[JevChoiceQuestion<Category>("What is the primary category?")]
+public Category? Category { get; set; }
+```
+
+Use `JevChoice<TEnum>` when you also need confidence and probabilities.
 
 ### Score
 
-`JevScoreQuestion<TEnum>` uses an enum with 2–10 members as an ordered scale. Enum
-declaration order defines levels 0, 1, 2, and so on. A result can expose the score
-as `double`, `decimal`, their nullable forms, `JevScore<TEnum>`, or any combination.
+`[JevScoreQuestion<TEnum>]` uses an enum with 2–10 members as an ordered scale.
+The members are ordered by their underlying numeric values and mapped to levels
+0, 1, 2, and so on. Use `double`, `decimal`, or their nullable forms for only the
+score:
+
+```csharp
+[JevScoreQuestion<Severity>("How severe is this?")]
+public double? Severity { get; set; }
+```
+
+Use `JevScore<TEnum>` when you also need confidence, probabilities, and the legend.
 
 ### Noul
 
-`JevNoulQuestion` returns a probability from 0 to 1. A result can expose it as
-`double`, `decimal`, their nullable forms, `JevNoul`, `bool`, or nullable `bool`.
-Boolean values default to `true` at 0.5 or above. Override that threshold on a
-Boolean property with `[JevNoulThreshold(0.7)]`.
+`[JevNoulQuestion]` returns a probability from 0 to 1. Use `double`, `decimal`,
+their nullable forms, or `JevNoul` to receive the probability. Boolean properties
+default to `true` at 0.5 or above. Configure the inclusive threshold and optional
+criteria on the question itself:
+
+```csharp
+[JevNoulQuestion(
+    "Is the product broken?",
+    0.7,
+    True = "The product is broken",
+    False = "The product works")]
+public bool? IsBroken { get; set; }
+```
 
 ## Client configuration
 
