@@ -24,14 +24,22 @@ jobs:
 
       - run: dotnet build --configuration Release --no-restore
 
-      - name: Run deterministic tests
-        run: dotnet test tests/JevDotNet.Tests/JevDotNet.Tests.csproj --configuration Release --no-build --no-restore --filter 'Category!=Live'
-
-      - name: Run live tests
-        if: ${{ github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]') }}
+      - name: Run tests with coverage
         env:
           TypeSafeApiKey: ${{ secrets.TYPESAFE_API_KEY }}
-        run: dotnet test tests/JevDotNet.Tests/JevDotNet.Tests.csproj --configuration Release --no-build --no-restore --filter 'Category=Live'
+          RUN_LIVE_TESTS: ${{ github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]') }}
+        run: |
+          if [ "$RUN_LIVE_TESTS" = "true" ]; then
+            dotnet test tests/JevDotNet.Tests/JevDotNet.Tests.csproj --configuration Release --no-build --no-restore -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=coverage/ -p:Include='[JevDotNet]*'
+          else
+            dotnet test tests/JevDotNet.Tests/JevDotNet.Tests.csproj --configuration Release --no-build --no-restore --filter 'Category!=Live' -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=coverage/ -p:Include='[JevDotNet]*'
+          fi
+
+      - name: Upload coverage to Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          file: tests/JevDotNet.Tests/coverage/coverage.cobertura.xml
+          format: cobertura
 
       - run: dotnet pack src/JevDotNet/JevDotNet.csproj --configuration Release --no-build --output artifacts
 
