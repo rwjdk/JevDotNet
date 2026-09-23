@@ -4,46 +4,36 @@
 
 # JevDotNet
 
+JevDotNet is an opinionated, convention-based .NET client for the [Jev API](https://docs.typesafe.ai/introduction) by TypeSafe AI.
+
 [![NuGet](https://img.shields.io/badge/NuGet-blue?style=for-the-badge)](https://www.nuget.org/packages/JevDotNet)
 [![Wiki](https://img.shields.io/badge/Wiki-brown?style=for-the-badge)](https://github.com/rwjdk/jev-dotnet/wiki)
 [![Changelog](https://img.shields.io/badge/-Changelog-darkgreen?style=for-the-badge)](https://github.com/rwjdk/jev-dotnet/blob/main/CHANGELOG.md)
 [![YouTube](https://img.shields.io/badge/-YouTube-darkred?style=for-the-badge)](https://youtu.be/T6jRVRXtRd8)
 [![API Reference](https://img.shields.io/badge/API_Reference-gray?style=for-the-badge)](https://docs.typesafe.ai/introduction)
 
-JevDotNet is an opinionated, convention-based .NET client for the [TypeSafe AI Jev API](https://docs.typesafe.ai/introduction).
-It turns Jev Choice, Score, and Noul answers into a strongly typed result object.
-
-Start with the [wiki's implementation walkthrough](https://github.com/rwjdk/jev-dotnet/wiki/Getting-started), then use its guides to build your return object and work with each Jev type.
-
-## YouTube video how to use
-https://youtu.be/T6jRVRXtRd8
-
-## Installation
-
-JevDotNet is available on [NuGet](https://www.nuget.org/packages/JevDotNet).
-
-```shell
-dotnet add package JevDotNet
-```
-
-JevDotNet targets .NET 8 or higher.
-
 ## Quick start
 
-Step 1: Define your return object and decorate its properties with the Jev attributes (Choice, Score, or Noul). The property types can be either simple or detailed types (see below):
+Watch [this video](https://youtu.be/T6jRVRXtRd8), or follow steps below.
+
+### Step 1
+Define your return object and decorate its properties with the Jev attributes (Choice, Score, or Noul). 
+
+- Each attributed property defines one question sent to Jev
+- The property types can be either simple or detailed types
 
 ```csharp
 using System.ComponentModel;
 using JevDotNet;
 using JevDotNet.Models;
 
-public sealed class MyJevReturnObject
+public class MyJevReturnObject
 {
     [JevChoiceQuestion<Category>("What is the primary category?")]
     public Category? Category { get; set; }
 
     [JevScoreQuestion<Severity>("How severe is the reported impact?")]
-    public double? Severity { get; set; }
+    public JevScore<Severity>? Severity { get; set; }
 
     [JevNoulQuestion("Is the product broken?", threshold: 0.7)]
     public bool? IsBroken { get; set; }
@@ -68,10 +58,12 @@ public enum Severity
 }
 ```
 
-Step 2: Create a client and evaluate some text:
+### Step 2
+
+Create a client and evaluate some text:
 
 ```csharp
-JevClient client = new JevClient(Environment.GetEnvironmentVariable("JEV_API_KEY")!);
+JevClient client = new JevClient("<api-key>");
 
 string input = "The customer cannot sign in after resetting their password.";
 JevResponse<MyJevReturnObject> response = await client.EvaluateAsync<MyJevReturnObject>(input);
@@ -79,29 +71,9 @@ JevResponse<MyJevReturnObject> response = await client.EvaluateAsync<MyJevReturn
 MyJevReturnObject myReturnObject = response.Result;
 
 Category? category = myReturnObject.Category;
-double? severity = myReturnObject.Severity;
+double? severity = myReturnObject.Severity.Score;
 bool? isBroken = myReturnObject.IsBroken;
 ```
-
-Each attributed property defines one question.
-
-## Dependency injection
-
-In an ASP.NET Core application, register `JevClient` as a singleton:
-
-```csharp
-using JevDotNet;
-using Microsoft.AspNetCore.Builder;
-
-WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
-string apiKey = Environment.GetEnvironmentVariable("JEV_API_KEY")
-    ?? throw new InvalidOperationException("Set JEV_API_KEY.");
-
-builder.Services.AddJevClient(apiKey);
-```
-
-You can also pass a `JevClientOptions` instance to `AddJevClient` to configure the model,
-endpoint, or HTTP client. Resolve `JevClient` from dependency injection wherever it is needed.
 
 ## Question types
 
@@ -166,6 +138,3 @@ var client = new JevClient(new JevClientOptions
     HttpClientFactory = () => httpClient
 });
 ```
-
-The returned `JevResponse<T>` contains the converted `Result` together with the
-`InputTokenCount` and `OutputTokenCount` reported by the API.
