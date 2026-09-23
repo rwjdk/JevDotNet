@@ -1,6 +1,6 @@
 [![Build and Test](https://img.shields.io/github/actions/workflow/status/rwjdk/jev-dotnet/build-and-test.yml?branch=main&style=for-the-badge)](https://github.com/rwjdk/jev-dotnet/actions/workflows/build-and-test.yml)
-[![Coverage Status](https://img.shields.io/coveralls/github/rwjdk/jev-dotnet?branch=main&style=for-the-badge)](https://coveralls.io/github/rwjdk/jev-dotnet?branch=main)
 [![Bugs](https://img.shields.io/github/issues/rwjdk/jev-dotnet/bug?style=for-the-badge&label=Bugs)](https://github.com/rwjdk/jev-dotnet/issues?q=is%3Aissue%20state%3Aopen%20label%3Abug)
+[![Coverage Status](https://img.shields.io/coveralls/github/rwjdk/jev-dotnet?branch=main&style=for-the-badge)](https://coveralls.io/github/rwjdk/jev-dotnet?branch=main)
 
 # JevDotNet
 
